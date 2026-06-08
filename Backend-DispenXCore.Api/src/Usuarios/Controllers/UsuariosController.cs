@@ -1,4 +1,5 @@
-﻿using Backend_DispenXCore.Api.src.Usuarios.Application.UseCases;
+﻿using Backend_DispenXCore.Api.src.IAM.Application.Interfaces;
+using Backend_DispenXCore.Api.src.IAM.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -6,34 +7,61 @@ using System.Security.Claims;
 namespace Backend_DispenXCore.Api.Controllers.V1
 {
     [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/perfil")]
+    [Route("api/v{version:apiVersion}/users")]
     [ApiController]
     [Authorize]
     public class UsuariosController : ControllerBase
     {
-        private readonly CrearPerfilCommand _crearPerfil;
-        private readonly VincularDispensadorCommand _vincular;
+        private readonly IUserRepository _userRepo;
+        private readonly PasswordHasherService _hasher;
 
-        public UsuariosController(CrearPerfilCommand crearPerfil, VincularDispensadorCommand vincular)
+        public UsuariosController(IUserRepository userRepo, PasswordHasherService hasher)
         {
-            _crearPerfil = crearPerfil;
-            _vincular = vincular;
+            _userRepo = userRepo;
+            _hasher = hasher;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CrearPerfil(string nombreCompleto)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUser(Guid id)
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            await _crearPerfil.Execute(userId, nombreCompleto);
-            return Ok();
+            var user = await _userRepo.GetByIdAsync(id);
+            if (user == null) return NotFound();
+            return Ok(new {
+                id = user.Id,
+                firstName = user.FirstName,
+                lastName = user.LastName,
+                email = user.Email,
+                role = user.Role.ToString(),
+                status = user.Status.ToString(),
+                photoUrl = user.PhotoUrl
+            });
         }
 
-        [HttpPost("vincular-dispensador")]
-        public async Task<IActionResult> VincularDispensador(string codigo)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UpdateUserRequest request)
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            await _vincular.Execute(userId, codigo);
-            return Ok();
+            var user = await _userRepo.GetByIdAsync(id);
+            if (user == null) return NotFound();
+            user.UpdateProfile(request.FirstName, request.LastName, request.PhotoUrl);
+            await _userRepo.SaveChangesAsync();
+            return NoContent();
+        }
+
+        [HttpPatch("{id}/password")]
+        public async Task<IActionResult> ChangePassword(Guid id, [FromBody] ChangePasswordRequest request)
+        {
+            var user = await _userRepo.GetByIdAsync(id);
+            if (user == null) return NotFound();
+            if (!_hasher.VerifyPassword(request.CurrentPassword, user.PasswordHash))
+                return BadRequest(new { message = "Contraseña actual incorrecta" });
+
+            var newHash = _hasher.HashPassword(request.NewPassword);
+            user.ChangePassword(newHash);
+            await _userRepo.SaveChangesAsync();
+            return NoContent();
         }
     }
+
+    public record UpdateUserRequest(string FirstName, string LastName, string? PhotoUrl);
+    public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
 }

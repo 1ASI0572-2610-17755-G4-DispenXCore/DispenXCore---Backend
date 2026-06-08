@@ -21,4 +21,14 @@
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="src\Dispensadores\Infrastructure\Services\" />
+      <Folder Include="src\Dispositivos\Domain\Services\" />
+      <Folder Include="src\Dispositivos\Domain\ValueObjects\" />
+      <Folder Include="src\Dispositivos\Infrastructure\Services\" />
+      <Folder Include="src\NotificacionesUsuario\Domain\Services\" />
+      <Folder Include="src\NotificacionesUsuario\Domain\ValueObjects\" />
+      <Folder Include="src\NotificacionesUsuario\Infrastructure\Services\" />
+    </ItemGroup>
+
 </Project>

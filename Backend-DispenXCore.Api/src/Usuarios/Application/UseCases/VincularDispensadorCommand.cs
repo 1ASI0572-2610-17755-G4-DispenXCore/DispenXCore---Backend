@@ -1,5 +1,5 @@
 ﻿using Backend_DispenXCore.Api.src.Usuarios.Application.Interfaces;
-using Backend_DispenXCore.Api.src.Usuarios.Domain.Entities;  // ← AÑADE ESTA LÍNEA
+using Backend_DispenXCore.Api.src.Usuarios.Domain.Entities;
 
 namespace Backend_DispenXCore.Api.src.Usuarios.Application.UseCases;
 public class VincularDispensadorCommand

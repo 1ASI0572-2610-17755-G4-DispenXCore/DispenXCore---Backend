@@ -1,5 +1,6 @@
-﻿using Backend_DispenXCore.Api.src.IAM.Application.UseCases;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Backend_DispenXCore.Api.src.IAM.Application.UseCases;
 
 namespace Backend_DispenXCore.Api.Controllers.V1
 {
@@ -18,20 +19,44 @@ namespace Backend_DispenXCore.Api.Controllers.V1
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(string email, string password)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            await _register.Execute(email, password);
+            await _register.Execute(request.FirstName, request.LastName, request.Email, request.Password);
             return Ok(new { message = "Usuario registrado correctamente" });
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(string email, string password)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var token = await _login.Execute(email, password);
+            var (token, user) = await _login.Execute(request.Email, request.Password);
             if (token == null)
-                return Unauthorized(new { message = "Credenciales inválidas" });
+                return Unauthorized();
 
-            return Ok(new { token });
+            return Ok(new
+            {
+                token,
+                user = new
+                {
+                    id = user!.Id,
+                    firstName = user.FirstName,
+                    lastName = user.LastName,
+                    email = user.Email,
+                    role = user.Role.ToString(),
+                    status = user.Status.ToString(),
+                    photoUrl = user.PhotoUrl
+                }
+            });
+        }
+
+        [HttpPost("logout")]
+        [Authorize]
+        public IActionResult Logout()
+        {
+            // JWT es stateless, simplemente devolvemos OK
+            return Ok(new { message = "Sesión cerrada" });
         }
     }
+
+    public record RegisterRequest(string FirstName, string LastName, string Email, string Password);
+    public record LoginRequest(string Email, string Password);
 }

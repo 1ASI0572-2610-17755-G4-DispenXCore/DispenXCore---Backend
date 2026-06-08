@@ -1,151 +1,318 @@
-﻿# 🐦 DispenX Core API  
+﻿# DispenX Core API - Documentación Técnica
 
-API backend para el sistema **DispenX**, encargado de recibir telemetría de dispensadores de alpiste/mijo, calcular el stock restante, gestionar alertas de bajo nivel, administrar usuarios y autenticación JWT.  
+## 📌 Descripción General
+API backend para el sistema **DispenX**, responsable de la telemetría de dispensadores de alimentos, gestión de horarios, cálculo dinámico de la próxima dispensación, alertas de stock y administración de usuarios con autenticación JWT.
 
-## 🧱 Arquitectura  
+## 🧱 Arquitectura
+El proyecto sigue **Domain‑Driven Design (DDD)** con los siguientes contextos acotados:
 
-El proyecto sigue los principios de **Domain‑Driven Design (DDD)**, dividiendo el sistema en contextos acotados independientes:  
+| Contexto              | Responsabilidad |
+|-----------------------|----------------|
+| **IAM**               | Registro, login, JWT y gestión de contraseñas |
+| **Inventario**        | Datos de sensores (peso, nivel, flujo) y cálculo de stock restante |
+| **AlertasStock**      | Evaluación de umbrales y envío de alertas push |
+| **Dispensadores**     | Dispensadores, estados, horarios, eventos y lógica de `nextDispenseAt` |
+| **Dispositivos**      | Dispositivo IoT y versiones de firmware |
+| **NotificacionesUsuario** | Notificaciones por usuario (bandeja de alertas) |
+| **Usuarios** (heredado)| Perfil de usuario y vinculación con dispensador físico |
 
-| Contexto | Responsabilidad | 
-|----------|----------------| 
-| **IAM** | Registro, login, generación de tokens JWT y hash de contraseñas. | 
-| **Inventario** | Recepción de datos de sensores (peso, nivel, flujo), cálculo del porcentaje de stock y exposición del estado actual. | 
-| **Notificaciones** | Evaluación de umbrales críticos y envío de alertas push cuando el stock está bajo. | 
-| **Usuarios** | Perfil del dueño/cuidador y vinculación con el dispensador físico. |  
+## ⚙️ Requisitos Previos
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- MySQL 8 (servidor local o remoto) con una base de datos vacía llamada `DispenX`
+- Opcional: Rider, Visual Studio 2022+ o VS Code
 
-Cada contexto está organizado en capas: **Domain**, **Application**, **Infrastructure** y **Controllers**.  
+## 🚀 Instalación y Ejecución
 
-## 🛠️ Stack Tecnológico  
-
-- **.NET 9** (ASP.NET Core Web API) 
-- **C# 13** 
-- **Entity Framework Core** con **MySQL 8** (proveedor Pomelo) 
-- **Autenticación JWT** (Bearer) 
-- **Swagger** con versionado de API (v1) 
-- **Rider** como IDE principal  
-
-## ⚙️ Requisitos Previos  
-
-1. [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) 
-2. Servidor **MySQL 8** (local o remoto) con una base de datos vacía llamada `DispenX`. 
-3. (Opcional) Rider, VS Code o Visual Studio 2022+. 
-4. Tools de EF Core (opcional para generar migraciones manualmente):    
-   ```bash    
-   dotnet tool install --global dotnet-ef 
-   ```
-
-## 🚀 Instalación y Ejecución 
-
-### 1. Clonar el repositorio 
-```bash 
-git clone <url-del-repo> 
-cd Backend-DispenXCore.Api 
+### 1. Clonar el repositorio
+```bash
+git clone <url-del-repo>
+cd Backend-DispenXCore.Api
 ```
 
-### 2. Configurar la conexión a la base de datos 
-Edita el archivo `appsettings.json` y ajusta la cadena de conexión:  
-```json 
-"ConnectionStrings": {   
-  "DispenXDb": "Server=localhost;Database=DispenX;User=root;Password=TU_PASSWORD;" 
-} 
-```
-Asegúrate de que la base de datos `DispenX` exista (puede estar vacía).  
+### 2. Configurar la cadena de conexión
+Editar `appsettings.json` y ajustar:
 
-### 3. Aplicar las migraciones (automático o manual) 
-El proyecto está configurado para aplicar las migraciones automáticamente al iniciar (en `Program.cs`).  
-
-Si prefieres hacerlo manualmente:  
-```bash 
-dotnet ef database update 
-```
-(Este comando crea todas las tablas necesarias).  
-
-### 4. Ejecutar la aplicación 
-```bash 
-dotnet run 
-```
-La API estará disponible en `https://localhost:5001` (o el puerto configurado en `launchSettings.json`).  
-
-## 📚 Documentación de la API (Swagger) 
-Una vez en ejecución, abre tu navegador en:  
-```text 
-https://localhost:5001/swagger 
-```
-Verás la UI de Swagger con todos los endpoints versión v1. Puedes autenticarte usando el botón **Authorize** e ingresar `Bearer <token>`.  
-
-## 🔐 Autenticación y Endpoints IAM 
-
-### Registro de usuario 
-`POST /api/v1/auth/register` 
-Body: 
 ```json
-{ 
-  "email": "usuario@ejemplo.com", 
-  "password": "123456" 
-}  
+{
+  "ConnectionStrings": {
+    "DispenXDb": "Server=localhost;Database=DispenX;User=root;Password=TU_PASSWORD;"
+  },
+  "JwtSettings": {
+    "SecretKey": "SuperSecretKey_AlMenos32Caracteres_Longitud12345678!",
+    "Issuer": "DispenX",
+    "Audience": "DispenXApp"
+  }
+}
 ```
 
-### Inicio de sesión 
-`POST /api/v1/auth/login` 
-Body: 
+### 3. Generar y aplicar migraciones
+```bash
+# Asegurarse de estar en la carpeta del proyecto (.csproj)
+cd Backend-DispenXCore.Api
+dotnet clean
+dotnet build
+dotnet ef migrations add InitialCreate
+dotnet ef database update
+```
+
+### 4. Ejecutar la API
+```bash
+dotnet run
+```
+La API se levanta en `https://localhost:5001` (según launchSettings.json). Swagger estará disponible en `https://localhost:5001/swagger`.
+
+## 🔐 Autenticación JWT
+La mayoría de endpoints requieren un token JWT. Flujo:
+
+1. Registrar usuario (`POST /api/v1/auth/register`)
+2. Iniciar sesión (`POST /api/v1/auth/login`) → obtienes un token
+3. En las peticiones autenticadas, incluir el header: `Authorization: Bearer <token>`
+
+## 📦 Endpoints
+
+### 1. Auth (/api/v1/auth)
+| Método | Ruta | Auth | Descripción |
+|---|---|---|---|
+| POST | `/auth/register` | No | Registrar un nuevo usuario |
+| POST | `/auth/login` | No | Iniciar sesión y obtener token |
+| POST | `/auth/logout` | Sí | Cerrar sesión (simbólico, JWT es stateless) |
+
+Ejemplo de `POST /auth/register` Body (JSON):
+
 ```json
-{ 
-  "email": "usuario@ejemplo.com", 
-  "password": "123456" 
-} 
+{
+  "firstName": "Diego",
+  "lastName": "Bastidas",
+  "email": "diego@ejemplo.com",
+  "password": "MiClave123!"
+}
 ```
-Respuesta: 
+Respuesta: `200 OK` con `{ "message": "Usuario registrado correctamente" }`.
+
+Ejemplo de `POST /auth/login` Body:
+
 ```json
-{ 
-  "token": "eyJhbGciOi..." 
-}  
+{
+  "email": "diego@ejemplo.com",
+  "password": "MiClave123!"
+}
+```
+Respuesta:
+
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "firstName": "Diego",
+    "lastName": "Bastidas",
+    "email": "diego@ejemplo.com",
+    "role": "USER",
+    "status": "ACTIVE",
+    "photoUrl": null
+  }
+}
 ```
 
-Usa ese token en las peticiones a los demás endpoints agregando el encabezado: 
-`Authorization: Bearer eyJhbGciOi...`  
-
-### Crear perfil y vincular dispensador 
-Endpoints protegidos en `/api/v1/perfil`.  
-
-## 📦 Endpoints Principales 
-
+### 2. Users (/api/v1/users) – Autenticado
 | Método | Ruta | Descripción |
-|--------|------|-------------|
-| POST | `/api/v1/inventario/medicion` | Registra una medición (peso, nivel, flujo) |
-| GET | `/api/v1/inventario/estado` | Obtiene el % de stock de todos los granos |
-| POST | `/api/v1/notificaciones/evaluar` | Evalúa umbrales y envía push |
-| GET | `/api/v1/notificaciones/{contenedorId}` | Lista alertas de un contenedor |
-| POST | `/api/v1/perfil` | Crea el perfil de usuario |
-| POST | `/api/v1/perfil/vincular-dispensador` | Asocia un dispensador al perfil |
+|---|---|---|
+| GET | `/users/{id}` | Obtener perfil de usuario por ID |
+| PUT | `/users/{id}` | Actualizar nombre, apellido y foto |
+| PATCH | `/users/{id}/password` | Cambiar contraseña (requiere actual y nueva) |
 
-*Nota: los endpoints de inventario y notificaciones requieren autenticación.*
+`PUT /users/{id}` Body:
 
-## 📁 Estructura del Proyecto 
-
-```text 
-Backend-DispenXCore.Api/ 
-├── Shared/                  # Kernel DDD, extensiones, middleware 
-├── Infrastructure/          # DbContext único 
-├── src/ 
-│   ├── IAM/                 # Autenticación y JWT 
-│   ├── Inventario/          # Dominio de stock y sensores 
-│   ├── Notificaciones/      # Umbrales y push 
-│   └── Usuarios/            # Perfiles y dispensadores 
-├── Program.cs               # Configuración de la app, JWT, Swagger, migraciones 
-└── appsettings.json         # Cadena de conexión y clave JWT 
+```json
+{
+  "firstName": "Diego",
+  "lastName": "Bastidas",
+  "photoUrl": "https://foto.url"
+}
 ```
 
-## 🔧 Migraciones de Base de Datos 
+`PATCH /users/{id}/password` Body:
 
-Si necesitas crear una nueva migración después de modificar entidades:  
-```bash 
-dotnet ef migrations add NombreDeLaMigracion 
-dotnet ef database update 
+```json
+{
+  "currentPassword": "MiClave123!",
+  "newPassword": "NuevaClave456!"
+}
 ```
 
-## 🤝 Contribuir 
+### 3. Inventario – Telemetría (/api/v1/inventario) – Autenticado
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/inventario/medicion` | Registrar datos de sensor (peso, nivel, flujo) |
+| GET | `/inventario/estado` | Obtener estado de todos los contenedores |
 
-Si deseas extender el sistema, respeta las capas DDD:  
-- No pongas lógica de negocio en los controladores.  
-- Cada contexto acotado debe ser independiente (no referenciar directamente las entidades de otro contexto, usa servicios de aplicación si es necesario).  
-- Usa los Value Objects y entidades del dominio tal como están definidos.
+`POST /inventario/medicion` Parámetros (query string o form): `contenedorId`, `peso`, `nivel`, `flujo`.
+Ejemplo: `POST /api/v1/inventario/medicion?contenedorId=3fa85f64...&peso=2.5&nivel=30&flujo=0.1`
+
+`GET /inventario/estado` Respuesta: lista de objetos con `id`, `grano`, `porcentajeRestante`, `pesoActual`, `nivelActual`.
+
+### 4. Alertas de Stock (/api/v1/alertas-stock) – Autenticado
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/alertas-stock/evaluar` | Evalúa umbrales y envía push si es necesario |
+| GET | `/alertas-stock/{contenedorId}` | Lista todas las alertas de un contenedor |
+
+`POST /alertas-stock/evaluar` Query: `contenedorId`, `umbral` (double), `deviceToken` (string para push).
+Ejemplo: `POST .../evaluar?contenedorId=...&umbral=10&deviceToken=abc123`
+
+### 5. Dispensadores (/api/v1/dispensators) – Autenticado
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/dispensators` | Lista todos los dispensadores |
+| GET | `/dispensators/{id}` | Estado dinámico (incluye nextDispenseAt) |
+
+`GET /dispensators/{id}` Respuesta (ejemplo):
+
+```json
+{
+  "id": 1,
+  "dispensatorId": 1,
+  "isActive": true,
+  "currentCapacity": 3200,
+  "maxCapacity": 5000,
+  "dailyTotal": 350,
+  "nextDispenseAt": "2026-06-09T07:30:00Z"
+}
+```
+**Cálculo de nextDispenseAt**: El backend examina todos los horarios activos del dispensador, para cada uno calcula la próxima ocurrencia futura según `scheduledTime` y `frequencyDays`, y devuelve la fecha más cercana. Ver sección "Lógica de negocio".
+
+### 6. Horarios (/api/v1/schedules) – Autenticado
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/schedules?dispensatorId=1` | Horarios activos de un dispensador |
+| GET | `/schedules/{id}` | Un horario por ID |
+| POST | `/schedules` | Crear nuevo horario |
+| PUT | `/schedules/{id}` | Actualizar horario |
+| DELETE | `/schedules/{id}` | Eliminar horario |
+| PATCH | `/schedules/{id}/toggle` | Activar/desactivar horario |
+
+Body de `POST /schedules`:
+
+```json
+{
+  "dispensatorId": 1,
+  "name": "Desayuno",
+  "supplyType": "RICE",
+  "amount": 150,
+  "scheduledTime": "07:30",
+  "frequencyDays": [1, 2, 3, 4, 5],
+  "smartRefill": false,
+  "isActive": true
+}
+```
+- `supplyType`: RICE, LENTILS, BEANS, CORN, OTHER
+- `frequencyDays`: array de enteros donde 0=Domingo, 1=Lunes ... 6=Sábado
+
+### 7. Eventos de dispensación (/api/v1/dispenser-events) – Autenticado
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/dispenser-events?dispensatorId=1` | Listar eventos (filtros opcionales: from, to, supplyType) |
+| POST | `/dispenser-events` | Registrar un evento de dispensación |
+
+Query para `GET`: `?dispensatorId=1&from=2026-05-01&to=2026-05-31&supplyType=RICE`
+
+Body de `POST`:
+
+```json
+{
+  "dispensatorId": 1,
+  "scheduleId": 1,
+  "trigger": "app",
+  "supplyType": "RICE",
+  "amountDispensed": 150,
+  "dispensedAt": "2026-06-08T07:30:00Z"
+}
+```
+- `trigger`: app o manual
+
+### 8. Dispositivo (/api/v1/device) – Autenticado
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/device` | Obtener información del dispositivo |
+| PATCH | `/device` | Actualizar nombre/ubicación |
+| POST | `/device/ping` | Registrar latido (actualiza lastSeen) |
+
+Body de `PATCH`:
+
+```json
+{
+  "name": "Dispensador Cocina",
+  "location": "Cocina Principal"
+}
+```
+
+### 9. Firmware (/api/v1/firmware) – Autenticado
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/firmware` | Lista todas las versiones de firmware |
+| GET | `/firmware/latest` | Obtener la versión más reciente (isLatest: true) |
+| POST | `/firmware/{id}/install` | Iniciar instalación de un firmware (simulado) |
+
+### 10. Notificaciones de Usuario (/api/v1/notifications) – Autenticado
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/notifications?userId=...` | Obtener notificaciones de un usuario |
+| PATCH | `/notifications/{id}/read` | Marcar una notificación como leída |
+| PATCH | `/notifications/read-all?userId=...` | Marcar todas como leídas |
+
+Estructura de una notificación:
+
+```json
+{
+  "id": "guid",
+  "userId": "guid",
+  "type": "ALERT",
+  "title": "Stock bajo",
+  "time": "2 minutes ago",
+  "message": "El nivel de alpiste está al 8%",
+  "action": "/dispensator/1",
+  "unread": true,
+  "createdAt": "2026-06-08T12:00:00Z"
+}
+```
+
+## 🧠 Lógica de Negocio Destacada
+
+**Cálculo de nextDispenseAt**
+Se consultan todos los schedules activos del dispensador.
+Para cada schedule, se itera sobre sus `frequencyDays` y se calcula la próxima fecha/hora futura combinando el día de la semana con `scheduledTime`.
+Si la hora actual ya pasó hoy, se toma el mismo día de la próxima semana.
+Se devuelve la fecha más cercana de todas las calculadas.
+
+**dailyTotal**
+Es la suma de `amountDispensed` de todos los `DispenserEvents` del día actual (desde las 00:00 hasta las 23:59:59.999) para el dispensador solicitado.
+
+**Capacidad actual**
+`currentCapacity` se descuenta cada vez que se registra un `DispenserEvent`. Se inicializa con `maxCapacity` al crear el `DispensatorStatus`.
+
+**Smart Refill**
+Si un schedule tiene `smartRefill: true`, la cantidad despachada (`amount`) se puede ajustar automáticamente según la capacidad restante (implementación pendiente en backend; actualmente se registra el evento con la cantidad fija).
+
+## 📂 Estructura del Proyecto (simplificada)
+```text
+Backend-DispenXCore.Api/
+├── Shared/                   # Kernel DDD, extensiones
+├── Infrastructure/           # DispenXDbContext
+├── src/
+│   ├── IAM/                  # Auth & JWT
+│   ├── Inventario/           # Sensores y stock
+│   ├── AlertasStock/         # Umbrales y push
+│   ├── Dispensadores/        # Dispensators, Schedules, Events
+│   ├── Dispositivos/         # Device & Firmware
+│   ├── NotificacionesUsuario/ # Notificaciones bandeja
+│   └── Usuarios/             # Perfil de usuario (heredado)
+├── Program.cs
+└── appsettings.json
+```
+
+## 🤝 Notas para Desarrolladores
+- Respetar las capas DDD: lógica de negocio en Domain, orquestación en Application, persistencia en Infrastructure.
+- No referenciar directamente entidades de otro contexto; usar servicios de aplicación o integraciones vía interfaces.
+- Los Value Objects como `FrequencyDays` se almacenan como JSON en una sola columna.
+- Las migraciones se aplican automáticamente al iniciar la app si se deja la línea `app.ApplyMigrations()` en Program.cs.
+- Para añadir nuevos endpoints, crear el use case en Application, exponerlo en un controlador y registrar en `ServiceCollectionExtensions`.

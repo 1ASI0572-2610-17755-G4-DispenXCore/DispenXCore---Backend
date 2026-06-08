@@ -3,18 +3,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Backend_DispenXCore.Api.src.Usuarios.Infrastructure.Persistence.Configurations;
-public class DispensadorConfiguration : IEntityTypeConfiguration<PerfilUsuario>
+public class DispensadorConfiguration : IEntityTypeConfiguration<Dispensador>
 {
-    public void Configure(EntityTypeBuilder<PerfilUsuario> builder)
+    public void Configure(EntityTypeBuilder<Dispensador> builder)
     {
-        builder.ToTable("perfiles_usuarios");
-        builder.HasKey(p => p.Id);
-        builder.Property(p => p.UserId).IsRequired();
-        builder.HasIndex(p => p.UserId).IsUnique();
-        builder.Property(p => p.NombreCompleto).HasMaxLength(150);
-        builder.Property(p => p.DispensadorId).IsRequired(false);
-        builder.HasOne(p => p.Dispensador)
-            .WithMany(d => d.Perfiles)
-            .HasForeignKey(p => p.DispensadorId);
+        builder.ToTable("dispensadores");
+        builder.HasKey(d => d.Id);
+        builder.Property(d => d.Codigo).HasMaxLength(50).IsRequired();
+        builder.HasIndex(d => d.Codigo).IsUnique();
     }
 }

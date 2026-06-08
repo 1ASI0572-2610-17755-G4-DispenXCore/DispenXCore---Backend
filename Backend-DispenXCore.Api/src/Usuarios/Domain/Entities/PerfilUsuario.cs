@@ -3,11 +3,9 @@
 namespace Backend_DispenXCore.Api.src.Usuarios.Domain.Entities;
 public class PerfilUsuario : BaseEntity
 {
-    public Guid UserId { get; private set; }   // FK al IAM.User
+    public Guid UserId { get; private set; }
     public string NombreCompleto { get; private set; }
     public Guid? DispensadorId { get; private set; }
-
-    // Navegación
     public Dispensador? Dispensador { get; private set; }
 
     public PerfilUsuario(Guid userId, string nombreCompleto)
@@ -16,8 +14,5 @@ public class PerfilUsuario : BaseEntity
         NombreCompleto = nombreCompleto;
     }
 
-    public void VincularDispensador(Guid dispensadorId)
-    {
-        DispensadorId = dispensadorId;
-    }
+    public void VincularDispensador(Guid dispensadorId) => DispensadorId = dispensadorId;
 }

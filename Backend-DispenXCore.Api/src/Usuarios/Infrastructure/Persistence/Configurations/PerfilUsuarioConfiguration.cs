@@ -10,7 +10,6 @@ public class PerfilUsuarioConfiguration : IEntityTypeConfiguration<PerfilUsuario
         builder.ToTable("perfiles_usuarios");
         builder.HasKey(p => p.Id);
         builder.Property(p => p.UserId).IsRequired();
-        builder.HasIndex(p => p.UserId).IsUnique();
         builder.Property(p => p.NombreCompleto).HasMaxLength(150);
         builder.Property(p => p.DispensadorId).IsRequired(false);
         builder.HasOne(p => p.Dispensador)

@@ -6,10 +6,9 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ============ JWT Configuration ============
+// JWT
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"]!;
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -29,7 +28,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// ============ Swagger with API Versioning ============
+// Swagger + versionado
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "DispenX API", Version = "v1" });
@@ -64,7 +63,7 @@ builder.Services.AddApiVersioning(config =>
     config.ReportApiVersions = true;
 });
 
-// ============ Database & Dependencies ============
+// Database & dependencies
 builder.Services.AddPersistence(builder.Configuration.GetConnectionString("DispenXDb")!);
 builder.Services.AddDomainServices();
 builder.Services.AddApplicationServices();
@@ -85,7 +84,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Apply migrations automatically (optional)
+// Aplica migraciones automáticamente al iniciar
 app.ApplyMigrations();
 
 app.Run();

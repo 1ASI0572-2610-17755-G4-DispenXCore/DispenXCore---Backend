@@ -10,16 +10,16 @@ public class PerfilRepository : IPerfilRepository
     public PerfilRepository(DispenXDbContext context) => _context = context;
 
     public async Task<PerfilUsuario?> GetByUserIdAsync(Guid userId) =>
-        await _context.Set<PerfilUsuario>().FirstOrDefaultAsync(p => p.UserId == userId);
+        await _context.PerfilesUsuarios.FirstOrDefaultAsync(p => p.UserId == userId);
 
     public async Task AddAsync(PerfilUsuario perfil) =>
-        await _context.Set<PerfilUsuario>().AddAsync(perfil);
+        await _context.PerfilesUsuarios.AddAsync(perfil);
 
     public async Task<Dispensador?> GetDispensadorByCodigoAsync(string codigo) =>
-        await _context.Set<Dispensador>().FirstOrDefaultAsync(d => d.Codigo == codigo);
+        await _context.Dispensadores.FirstOrDefaultAsync(d => d.Codigo == codigo);
 
     public async Task AddDispensadorAsync(Dispensador dispensador) =>
-        await _context.Set<Dispensador>().AddAsync(dispensador);
+        await _context.Dispensadores.AddAsync(dispensador);
 
     public async Task SaveChangesAsync() =>
         await _context.SaveChangesAsync();
