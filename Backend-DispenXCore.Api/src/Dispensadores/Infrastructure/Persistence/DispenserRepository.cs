@@ -16,8 +16,14 @@ public class DispenserRepository : IDispenserRepository
     public async Task<Dispensator?> GetByIdAsync(int id) =>
         await _context.Dispensators.FindAsync(id);
 
+    public async Task AddDispensatorAsync(Dispensator dispensator) =>
+        await _context.Dispensators.AddAsync(dispensator);
+
     public async Task<DispensatorStatus?> GetStatusAsync(int dispensatorId) =>
         await _context.DispensatorStatuses.FirstOrDefaultAsync(s => s.DispensatorId == dispensatorId);
+
+    public async Task AddDispensatorStatusAsync(DispensatorStatus status) =>
+        await _context.DispensatorStatuses.AddAsync(status);
 
     public async Task<List<Schedule>> GetActiveSchedulesAsync(int dispensatorId) =>
         await _context.Schedules.Where(s => s.DispensatorId == dispensatorId && s.IsActive).ToListAsync();

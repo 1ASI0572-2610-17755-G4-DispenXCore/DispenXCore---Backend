@@ -12,10 +12,19 @@ public class Dispensator
     public int MaxCapacity { get; private set; } // gramos
 
     private Dispensator() { }
+
     public Dispensator(string name, int maxCapacity)
     {
         Name = name;
         MaxCapacity = maxCapacity;
         Status = DispensatorState.active;
+    }
+
+    // Nuevo constructor que acepta estado
+    public Dispensator(string name, int maxCapacity, DispensatorState status)
+    {
+        Name = name;
+        MaxCapacity = maxCapacity;
+        Status = status;
     }
 }
