@@ -1,7 +1,8 @@
-﻿namespace Backend_DispenXCore.Api.src.Dispensadores.Domain.Entities;
+namespace Backend_DispenXCore.Api.src.Dispensadores.Domain.Entities;
 
-public class DispensatorStatus : Shared.Kernel.BaseEntity
+public class DispensatorStatus
 {
+    public int Id { get; private set; }
     public int DispensatorId { get; private set; }
     public bool IsActive { get; private set; }
     public int CurrentCapacity { get; private set; }

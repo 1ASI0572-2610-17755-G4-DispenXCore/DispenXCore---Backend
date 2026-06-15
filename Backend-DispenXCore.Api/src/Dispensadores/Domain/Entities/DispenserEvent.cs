@@ -1,10 +1,11 @@
-﻿namespace Backend_DispenXCore.Api.src.Dispensadores.Domain.Entities;
+namespace Backend_DispenXCore.Api.src.Dispensadores.Domain.Entities;
 
 public enum EventTrigger { app, manual }
 public enum EventSupplyType { RICE, LENTILS, BEANS, CORN, OTHER }
 
-public class DispenserEvent : Shared.Kernel.BaseEntity
+public class DispenserEvent
 {
+    public int Id { get; private set; }
     public int DispensatorId { get; private set; }
     public int? ScheduleId { get; private set; }
     public EventTrigger Trigger { get; private set; }

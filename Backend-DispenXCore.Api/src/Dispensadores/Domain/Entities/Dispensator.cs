@@ -1,11 +1,12 @@
-﻿﻿using Backend_DispenXCore.Api.Shared.Kernel;
+﻿using Backend_DispenXCore.Api.Shared.Kernel;
 
 namespace Backend_DispenXCore.Api.src.Dispensadores.Domain.Entities;
 
 public enum DispensatorState { active, inactive }
 
-public class Dispensator : BaseEntity
+public class Dispensator
 {
+    public int Id { get; private set; }
     public string Name { get; private set; }
     public DispensatorState Status { get; private set; }
     public int MaxCapacity { get; private set; } // gramos

@@ -1,10 +1,11 @@
-﻿using Backend_DispenXCore.Api.src.Dispensadores.Domain.ValueObjects;
+using Backend_DispenXCore.Api.src.Dispensadores.Domain.ValueObjects;
 using Backend_DispenXCore.Api.Shared.Kernel;
 
 namespace Backend_DispenXCore.Api.src.Dispensadores.Domain.Entities;
 
-public class Schedule : BaseEntity
+public class Schedule
 {
+    public int Id { get; private set; }
     public int DispensatorId { get; private set; }
     public string Name { get; private set; }
     public SupplyType SupplyType { get; private set; }
