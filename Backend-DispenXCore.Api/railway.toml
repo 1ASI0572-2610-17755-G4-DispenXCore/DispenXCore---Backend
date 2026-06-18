@@ -4,3 +4,6 @@ builder = "nixpacks"
 [deploy]
 startCommand = "dotnet Backend-DispenXCore.Api.dll"
 restartPolicyType = "on_failure"
+
+[phases.setup]
+nixPkgs = ["dotnet-sdk_8"]

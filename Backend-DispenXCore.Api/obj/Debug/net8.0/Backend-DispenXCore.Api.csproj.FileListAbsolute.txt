@@ -117,3 +117,4 @@ C:\Users\rafae\TRABAJOS_UPC\Rider\DispenXCore-Web-Backend\Backend-DispenXCore.Ap
 C:\Users\rafae\TRABAJOS_UPC\Rider\DispenXCore-Web-Backend\Backend-DispenXCore.Api\obj\Debug\net8.0\Backend-DispenXCore.Api.pdb
 C:\Users\rafae\TRABAJOS_UPC\Rider\DispenXCore-Web-Backend\Backend-DispenXCore.Api\obj\Debug\net8.0\Backend-DispenXCore.Api.genruntimeconfig.cache
 C:\Users\rafae\TRABAJOS_UPC\Rider\DispenXCore-Web-Backend\Backend-DispenXCore.Api\obj\Debug\net8.0\ref\Backend-DispenXCore.Api.dll
+C:\Users\rafae\TRABAJOS_UPC\Rider\DispenXCore-Web-Backend\Backend-DispenXCore.Api\obj\Debug\net8.0\swae.build.ex.cache
