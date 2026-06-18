@@ -71,11 +71,26 @@ builder.Services.AddApplicationServices();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// ── CORS ──────────────────────────────────────────────────────────────────
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Reemplaza el if (app.Environment.IsDevelopment()) por esto:
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DispenX API v1"));
+
+app.UseCors("AllowAll");
+
 
 //app.UseHttpsRedirection();
 app.UseAuthentication();
