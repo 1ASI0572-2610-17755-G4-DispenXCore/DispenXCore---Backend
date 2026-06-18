@@ -35,7 +35,11 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddPersistence(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<DispenXDbContext>(options =>
-            options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0))));
+            options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 0)),
+                mySqlOptions => mySqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(10),
+                    errorNumbersToAdd: null)));
 
         // IAM
         services.AddScoped<IUserRepository, UserRepository>();
