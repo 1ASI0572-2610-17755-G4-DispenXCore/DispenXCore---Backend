@@ -13,8 +13,14 @@ public class DeviceRepository : IDeviceRepository
     public async Task<Device?> GetDeviceAsync() =>
         await _context.Devices.FirstOrDefaultAsync();
 
+    public async Task<Device?> GetDeviceByIdAsync(string id) =>
+        await _context.Devices.FirstOrDefaultAsync(d => d.Id == id);
+
     public async Task UpdateDeviceAsync(Device device) =>
         _context.Devices.Update(device);
+
+    public async Task AddDeviceAsync(Device device) =>
+        await _context.Devices.AddAsync(device);
 
     public async Task PingAsync()
     {

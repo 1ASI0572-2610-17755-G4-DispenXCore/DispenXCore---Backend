@@ -7,13 +7,14 @@ public class RegistrarMedicionCommand
     private readonly IInventarioRepository _repo;
     public RegistrarMedicionCommand(IInventarioRepository repo) => _repo = repo;
 
-    public async Task Execute(Guid contenedorId, double peso, double nivel, double flujo)
+    public async Task Execute(string? deviceId, Guid? contenedorId, double peso, double nivel, double flujo)
     {
-        var contenedor = await _repo.GetByIdAsync(contenedorId);
+        var resolvedContainerId = await _repo.ResolveContainerIdAsync(deviceId, contenedorId);
+        var contenedor = await _repo.GetByIdAsync(resolvedContainerId);
         if (contenedor == null) throw new InvalidOperationException("Contenedor no encontrado");
 
         contenedor.ActualizarMedicion(peso, nivel);
-        var dato = new DatoSensor(contenedorId, peso, nivel, flujo);
+        var dato = new DatoSensor(resolvedContainerId, peso, nivel, flujo);
         await _repo.AddDatoSensorAsync(dato);
         await _repo.SaveChangesAsync();
     }

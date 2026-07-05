@@ -7,5 +7,6 @@ public interface IInventarioRepository
     Task<List<Contenedor>> GetAllAsync();
     Task AddAsync(Contenedor contenedor);
     Task AddDatoSensorAsync(DatoSensor dato);
+    Task<Guid> ResolveContainerIdAsync(string? deviceId, Guid? contenedorId);
     Task SaveChangesAsync();
 }

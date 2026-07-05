@@ -98,6 +98,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ObtenerDeviceQuery>();
         services.AddScoped<ActualizarDeviceCommand>();
         services.AddScoped<RegistrarPingCommand>();
+        services.AddScoped<RegistrarDeviceCommand>();
         services.AddScoped<FirmwareUseCases>();
 
         // Notificaciones usuario

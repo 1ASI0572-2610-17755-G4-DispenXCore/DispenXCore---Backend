@@ -40,6 +40,29 @@ public class RegistrarPingCommand
     }
 }
 
+public class RegistrarDeviceCommand
+{
+    private readonly IDeviceRepository _repo;
+    public RegistrarDeviceCommand(IDeviceRepository repo) => _repo = repo;
+
+    public async Task Execute(string deviceId, string? macAddress, string? ipAddress)
+    {
+        var device = await _repo.GetDeviceByIdAsync(deviceId);
+        if (device == null)
+        {
+            device = new Device(deviceId, "Dispositivo Edge", "ESP32", "Sin ubicación", macAddress ?? "");
+            await _repo.AddDeviceAsync(device);
+        }
+        else
+        {
+            device.Ping();
+            await _repo.UpdateDeviceAsync(device);
+        }
+
+        await _repo.SaveChangesAsync();
+    }
+}
+
 // FirmwareUseCases.cs (contiene varios)
 public class FirmwareUseCases
 {
