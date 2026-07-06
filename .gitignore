@@ -1,0 +1,3 @@
+*.exe
+*.dll
+/Backend-DispenXCore.Api/obj
