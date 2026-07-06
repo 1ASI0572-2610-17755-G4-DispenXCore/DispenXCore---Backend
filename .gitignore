@@ -1,3 +1,4 @@
 *.exe
 *.dll
 /Backend-DispenXCore.Api/obj
+/Backend-DispenXCore.Api/bin
