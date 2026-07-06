@@ -1,4 +1,4 @@
-﻿using Backend_DispenXCore.Api.src.IAM.Application.Interfaces;
+using Backend_DispenXCore.Api.src.IAM.Application.Interfaces;
 using Backend_DispenXCore.Api.src.IAM.Application.UseCases;
 using Backend_DispenXCore.Api.src.IAM.Domain.Services;
 using Backend_DispenXCore.Api.src.IAM.Infrastructure.Persistence;
@@ -26,6 +26,7 @@ using Backend_DispenXCore.Api.src.NotificacionesUsuario.Application.Interfaces;
 using Backend_DispenXCore.Api.src.NotificacionesUsuario.Application.UseCases;
 using Backend_DispenXCore.Api.src.NotificacionesUsuario.Infrastructure.Persistence;
 using Backend_DispenXCore.Api.Infrastructure.Persistence;
+using Backend_DispenXCore.Api.Shared.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend_DispenXCore.Api.Shared.Extensions;
@@ -104,6 +105,10 @@ public static class ServiceCollectionExtensions
         // Notificaciones usuario
         services.AddScoped<ObtenerNotificacionesQuery>();
         services.AddScoped<MarcarNotificacionesCommand>();
+
+        // Edge Client
+        services.AddHttpClient();
+        services.AddScoped<IEdgeClient, EdgeClient>();
 
         return services;
     }

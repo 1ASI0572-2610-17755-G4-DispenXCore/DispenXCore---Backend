@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Backend_DispenXCore.Api.src.Dispensadores.Application.Interfaces;
 using Backend_DispenXCore.Api.src.Dispensadores.Application.UseCases;
