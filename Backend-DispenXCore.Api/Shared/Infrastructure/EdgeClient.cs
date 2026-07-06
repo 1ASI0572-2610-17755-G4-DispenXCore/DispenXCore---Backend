@@ -15,24 +15,32 @@ namespace Backend_DispenXCore.Api.Shared.Infrastructure
         {
             _httpClient = httpClient;
             _logger = logger;
+
+            // Se obtiene la URL base del servicio Edge desde la configuración.
+            // Si no existe, se usa localhost como valor por defecto.
             _baseUrl = configuration["EdgeServiceUrl"] ?? "http://localhost:5000";
         }
 
         public async Task<bool> ActivateDispenserAsync(string deviceId, string? supplyType)
         {
+            // Se construye la URL del endpoint que activa el dispensador en el servicio Edge.
             var url = $"{_baseUrl.TrimEnd('/')}/api/v1/dispenser/activate";
+
             var payload = new
             {
                 device_id = deviceId,
                 supply_type = supplyType ?? "General"
             };
 
+            // Se serializa el objeto payload a formato JSON para enviarlo en la petición HTTP.
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             try
             {
                 _logger.LogInformation("[EDGE-CLIENT] Sending dispense command to {Url} with payload {Payload}...", url, json);
+
+                // Se envía una petición POST al servicio Edge para activar el dispensador.
                 var response = await _httpClient.PostAsync(url, content);
 
                 if (response.IsSuccessStatusCode)
@@ -48,6 +56,7 @@ namespace Backend_DispenXCore.Api.Shared.Infrastructure
             }
             catch (Exception ex)
             {
+                // Se captura cualquier error de conexión o ejecución al comunicarse con el servicio Edge.
                 _logger.LogError(ex, "[EDGE-CLIENT] Error sending dispense command to Edge service");
             }
 
