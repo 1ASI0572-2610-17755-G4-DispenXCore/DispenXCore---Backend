@@ -8,7 +8,6 @@ namespace Backend_DispenXCore.Api.Controllers.V1
     [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/dispenser-events")]
     [ApiController]
-    [Authorize]
     public class DispenserEventsController : ControllerBase
     {
         private readonly IDispenserRepository _repo;
@@ -44,9 +43,12 @@ namespace Backend_DispenXCore.Api.Controllers.V1
 
         /// <summary>
         /// Registra un nuevo evento de dispensación (manual o automático).
+        /// Endpoint público (sin autenticación) para que el Edge Service / ESP32
+        /// pueda reportar dispensaciones directamente desde la red local.
         /// </summary>
         /// <param name="request">Datos del evento de dispensación.</param>
         /// <returns>200 OK si se registró correctamente.</returns>
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> PostEvent([FromBody] DispenserEventRequest request)
         {

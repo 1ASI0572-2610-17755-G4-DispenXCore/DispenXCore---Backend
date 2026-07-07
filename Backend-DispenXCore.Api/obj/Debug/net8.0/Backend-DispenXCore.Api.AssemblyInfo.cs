@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Backend-DispenXCore.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cda8e1af54e952fb050156d6f1551f0b5678be47")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1f8b40ff22fe4932e39fa19630dfd89ca64c84bf")]
 [assembly: System.Reflection.AssemblyProductAttribute("Backend-DispenXCore.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Backend-DispenXCore.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
