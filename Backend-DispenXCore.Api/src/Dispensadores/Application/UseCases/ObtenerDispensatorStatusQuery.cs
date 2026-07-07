@@ -27,7 +27,7 @@ public class ObtenerDispensatorStatusQuery
         var today = DateTime.Today;
         var eventsToday = await _repo.GetEventsAsync(dispensatorId, today, today.AddDays(1).AddTicks(-1), null);
         var dailyTotal = eventsToday.Sum(e => e.AmountDispensed);
-        status.ActualizarDailyTotal(dailyTotal);
+        status.ActualizarDailyTotal((int)Math.Round(dailyTotal, MidpointRounding.AwayFromZero));
 
         return new {
             id = status.Id,

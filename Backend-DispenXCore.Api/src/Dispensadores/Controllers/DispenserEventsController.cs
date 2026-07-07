@@ -72,6 +72,6 @@ namespace Backend_DispenXCore.Api.Controllers.V1
         int? ScheduleId,
         string Trigger,
         string? SupplyType,
-        int AmountDispensed,
+        decimal AmountDispensed,
         DateTime DispensedAt);
 }

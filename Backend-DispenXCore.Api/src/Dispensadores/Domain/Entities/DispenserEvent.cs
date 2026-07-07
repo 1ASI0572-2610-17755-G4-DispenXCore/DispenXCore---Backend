@@ -10,12 +10,12 @@ public class DispenserEvent
     public int? ScheduleId { get; private set; }
     public EventTrigger Trigger { get; private set; }
     public EventSupplyType? SupplyType { get; private set; }
-    public int AmountDispensed { get; private set; }
+    public decimal AmountDispensed { get; private set; }
     public DateTime DispensedAt { get; private set; }
 
     private DispenserEvent() { }
     public DispenserEvent(int dispensatorId, int? scheduleId, EventTrigger trigger,
-        EventSupplyType? supplyType, int amountDispensed, DateTime dispensedAt)
+        EventSupplyType? supplyType, decimal amountDispensed, DateTime dispensedAt)
     {
         DispensatorId = dispensatorId;
         ScheduleId = scheduleId;

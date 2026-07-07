@@ -3,6 +3,7 @@ using System;
 using Backend_DispenXCore.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend_DispenXCore.Api.Migrations
 {
     [DbContext(typeof(DispenXDbContext))]
-    partial class DispenXDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260707190545_AmountDispensedToDecimal")]
+    partial class AmountDispensedToDecimal
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

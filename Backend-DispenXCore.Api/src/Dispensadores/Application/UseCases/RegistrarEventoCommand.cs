@@ -26,7 +26,7 @@ public class RegistrarEventoCommand
     }
 
     public async Task Execute(int dispensatorId, int? scheduleId, string trigger,
-        string? supplyType, int amountDispensed, DateTime dispensedAt)
+        string? supplyType, decimal amountDispensed, DateTime dispensedAt)
     {
         var triggerEnum = Enum.Parse<EventTrigger>(trigger);
         var supplyEnum = supplyType != null ? (EventSupplyType?)Enum.Parse<EventSupplyType>(supplyType) : null;
